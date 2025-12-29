@@ -1,0 +1,355 @@
+@font-face {
+	font-family: 'HLC Metra';
+	src: url('./assets/font/HLC-Metra-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+*,
+*::before,
+*::after,
+*::-webkit-slider-thumb,
+*::-webkit-slider-runnable-track,
+*::-moz-range-thumb,
+*::-moz-range-track {
+	box-sizing: border-box;
+}
+
+* {
+	margin: 0;
+}
+
+body {
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	overflow-wrap: break-word;
+}
+
+#root,
+#__next {
+	isolation: isolate;
+}
+
+:root {
+	font-family: 'HLC Metra', 'Helvetica Neue', system-ui, sans-serif;
+
+	--color-fg: #292929;
+	--color-bg: #fff;
+	--color-red: #de2224;
+	--color-green: #208c4d;
+	--color-yellow: #ffd700;
+	--color-blue: #0066cc;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+#app {
+	display: flex;
+	flex-direction: column;
+	min-height: 100dvh;
+	width: 100%;
+}
+
+header {
+	text-align: center;
+	padding: 2rem;
+}
+
+h1 {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 0;
+	line-height: 1;
+	font-size: 4rem;
+	font-weight: 500;
+}
+
+h1 > span {
+	margin-left: 0.125em;
+	color: var(--color-red);
+	font-feature-settings: 'ss10' 1;
+	font-size: 1.25em;
+}
+
+.subtitle {
+	text-transform: uppercase;
+	margin-top: 0.25rem;
+	font-size: 0.75rem;
+	letter-spacing: 0.2em;
+	opacity: 0.8;
+}
+
+main {
+	position: relative;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 2rem;
+	gap: 2rem;
+	margin: 0 auto;
+	max-width: 400px;
+	width: 100%;
+}
+
+.controls {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	width: 100%;
+}
+
+.slider-container {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	flex: 1 1 0;
+}
+
+.slider-container::before {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 40px;
+	height: 20px;
+	background: var(--color-fg);
+}
+
+#number-slider {
+	writing-mode: bt-lr;
+	-webkit-appearance: slider-vertical;
+	appearance: slider-vertical;
+	width: 20px;
+	height: 100%;
+	cursor: pointer;
+	position: relative;
+	z-index: 1;
+}
+
+#tempo-slider {
+	position: absolute;
+	width: 100%;
+	height: 20px;
+	cursor: pointer;
+	z-index: 2;
+	top: 50%;
+	left: 0;
+	margin-top: -10px;
+	background: transparent;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+#tempo-display {
+	position: absolute;
+	right: 100%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 1.2em;
+	font-weight: 500;
+	margin-top: 1px;
+	font-variant-numeric: tabular-nums;
+}
+
+#number-slider::-webkit-slider-runnable-track {
+	background: var(--color-fg);
+	width: 20px;
+	border-radius: 10px;
+}
+
+#number-slider::-webkit-slider-thumb {
+	-webkit-appearance: sliderthumb-vertical;
+	appearance: sliderthumb-vertical;
+	background: var(--color-bg);
+	border: 2px solid var(--color-red);
+}
+
+#number-slider::-moz-range-track {
+	background: var(--color-fg);
+	width: 20px;
+	border-radius: 10px;
+}
+
+#number-slider::-moz-range-thumb {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--color-bg);
+	cursor: pointer;
+	border: 6px solid var(--color-red);
+}
+
+#tempo-slider::-webkit-slider-runnable-track {
+	background: linear-gradient(
+		to right,
+		var(--color-fg) 0,
+		var(--color-fg) calc(50% - 20px),
+		transparent calc(50% - 20px),
+		transparent calc(50% + 20px),
+		var(--color-fg) calc(50% + 20px),
+		var(--color-fg) 100%
+	);
+	height: 20px;
+	border-radius: 10px;
+}
+
+#tempo-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--color-bg);
+	cursor: pointer;
+	border: 2px solid var(--color-green);
+}
+
+#tempo-slider::-moz-range-track {
+	background: linear-gradient(
+		to right,
+		var(--color-fg) 0,
+		var(--color-fg) calc(50% - 20px),
+		transparent calc(50% - 20px),
+		transparent calc(50% + 20px),
+		var(--color-fg) calc(50% + 20px),
+		var(--color-fg) 100%
+	);
+	height: 20px;
+	border-radius: 10px;
+}
+
+#tempo-slider::-moz-range-thumb {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--color-bg);
+	cursor: pointer;
+	border: 6px solid var(--color-green);
+}
+#number-display {
+	font-size: 1.2em;
+	font-weight: 500;
+	min-width: 80px;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+}
+
+.bottom-controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	margin-top: auto;
+	padding-top: 2rem;
+}
+
+button {
+	border-radius: 8px;
+	border: 1px solid transparent;
+	padding: 0.6em 1.2em;
+	font-size: 1em;
+	font-weight: 500;
+	cursor: pointer;
+	transition: border-color 0.25s;
+	background: transparent;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--color-fg);
+}
+
+button svg {
+	width: 48px;
+	height: 48px;
+}
+
+button:focus,
+button:focus-visible {
+	outline: 4px auto -webkit-focus-ring-color;
+}
+
+.radio-group {
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+	align-items: center;
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
+.radio-option {
+	position: relative;
+	cursor: pointer;
+}
+
+.radio-option input[type='radio'] {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.radio-option > span {
+	font-size: 3rem;
+	font-feature-settings: 'ss09' 1;
+}
+
+.radio-option:nth-child(1) > span {
+	color: var(--color-red);
+}
+
+.radio-option:nth-child(2) > span {
+	color: var(--color-yellow);
+}
+
+.radio-option:nth-child(3) > span {
+	color: var(--color-blue);
+}
+
+.radio-option:nth-child(4) > span {
+	color: var(--color-green);
+}
+
+.radio-option input:checked + span {
+	font-feature-settings: 'ss10' 1;
+}

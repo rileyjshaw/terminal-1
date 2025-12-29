@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Terminal 1</title>
+		<link rel="stylesheet" href="/src/style.css" />
+		<!-- FAVICONS -->
+	</head>
+	<body>
+		<div id="app">
+			<header>
+				<h1>Terminal <span>1</span></h1>
+				<p class="subtitle">Collatz conjecture sequencer</p>
+			</header>
+			<main>
+				<div class="controls">
+					<div class="slider-container">
+						<input type="range" id="tempo-slider" min="10" max="200" value="80" />
+						<input type="range" id="number-slider" min="2" max="999" value="136" orient="vertical" />
+						<label for="tempo-slider" id="tempo-display">80</label>
+					</div>
+					<label for="number-slider" id="number-display">136</label>
+				</div>
+				<div class="bottom-controls">
+					<button id="start-btn" aria-label="Play/Pause"></button>
+					<fieldset class="radio-group">
+						<label class="radio-option">
+							<input type="radio" name="preset" value="1" checked />
+							<span>1</span>
+						</label>
+						<label class="radio-option">
+							<input type="radio" name="preset" value="2" />
+							<span>2</span>
+						</label>
+						<label class="radio-option">
+							<input type="radio" name="preset" value="3" />
+							<span>3</span>
+						</label>
+						<label class="radio-option">
+							<input type="radio" name="preset" value="4" />
+							<span>4</span>
+						</label>
+					</fieldset>
+				</div>
+			</main>
+		</div>
+		<script type="module" src="/src/main.js"></script>
+	</body>
+</html>
