@@ -31,7 +31,7 @@ let currentTimeout = null;
 let currentSequence = [];
 let currentStep = 0;
 let currentInstrument = 1;
-let instrument4Groups = [];
+let melodicInstrumentGroups = [];
 let playingSources = [];
 
 let tempo = parseInt(tempoSlider.value);
@@ -162,7 +162,10 @@ function getMelodicSound(bit, length, instrument) {
 		if (length === 3) return `${basePath}/07.wav`;
 		return `${basePath}/06.wav`;
 	} else {
-		if (length === 1) return `${basePath}/05.wav`;
+		if (length === 1) {
+			if (instrument === 4) return null;
+			else return `${basePath}/05.wav`;
+		}
 		if (length === 2) return `${basePath}/03.wav`;
 		if (length === 3) return `${basePath}/08.wav`;
 		return `${basePath}/02.wav`;
@@ -176,19 +179,21 @@ function startSequencer() {
 
 	if (currentInstrument === 3 || currentInstrument === 4) {
 		function playNextGroup() {
-			if (!isPlaying || instrument4Groups.length === 0) return;
+			if (!isPlaying || melodicInstrumentGroups.length === 0) return;
 
-			const group = instrument4Groups[currentStep];
+			const group = melodicInstrumentGroups[currentStep];
 			const soundFile = getMelodicSound(group.bit, group.length, currentInstrument);
-			const buffer = audioSamples[currentInstrument][soundFile];
 
-			if (buffer) {
-				playSampleWithStop(buffer);
+			if (soundFile) {
+				const buffer = audioSamples[currentInstrument][soundFile];
+				if (buffer) {
+					playSampleWithStop(buffer);
+				}
 			}
 
 			const groupDuration = group.length * stepDuration;
 
-			currentStep = (currentStep + 1) % instrument4Groups.length;
+			currentStep = (currentStep + 1) % melodicInstrumentGroups.length;
 
 			currentTimeout = setTimeout(playNextGroup, groupDuration);
 		}
@@ -262,7 +267,7 @@ function updateSequence(number) {
 
 	const packed = collatzSequence(number);
 	currentSequence = unpackSequence(packed);
-	instrument4Groups = groupConsecutiveBits(currentSequence);
+	melodicInstrumentGroups = groupConsecutiveBits(currentSequence);
 
 	numberDisplay.textContent = number;
 
