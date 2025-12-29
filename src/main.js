@@ -8,6 +8,7 @@ const numberDisplay = document.querySelector('#number-display');
 const tempoSlider = document.querySelector('#tempo-slider');
 const tempoDisplay = document.querySelector('#tempo-display');
 const presetRadios = document.querySelectorAll('input[name="preset"]');
+const loadingDialog = document.querySelector('#loading-dialog');
 
 startBtn.innerHTML = playSvg;
 
@@ -64,7 +65,8 @@ function getStepDuration() {
 	return (60 / (tempo * 4)) * 1000;
 }
 
-async function fetchAudioFile(url) {
+async function fetchAudioFile(path) {
+	const url = `${import.meta.env.BASE_URL}${path}`;
 	const response = await fetch(url);
 	return await response.arrayBuffer();
 }
@@ -152,19 +154,18 @@ function getFirstInSequenceIndices(sequence) {
 	return indices;
 }
 
-function getInstrument4Sound(bit, length) {
+function getMelodicSound(bit, length, instrument) {
+	const basePath = `audio/${String(instrument).padStart(2, '0')}`;
 	if (bit === 0) {
-		if (length === 1) return '1.wav';
-		if (length === 2) return '4.wav';
-		if (length === 3) return '7.wav';
-		if (length === 4) return '6.wav';
-		return '6.wav';
+		if (length === 1) return `${basePath}/01.wav`;
+		if (length === 2) return `${basePath}/04.wav`;
+		if (length === 3) return `${basePath}/07.wav`;
+		return `${basePath}/06.wav`;
 	} else {
-		if (length === 1) return '5.wav';
-		if (length === 2) return '3.wav';
-		if (length === 3) return '8.wav';
-		if (length === 4) return '2.wav';
-		return '2.wav';
+		if (length === 1) return `${basePath}/05.wav`;
+		if (length === 2) return `${basePath}/03.wav`;
+		if (length === 3) return `${basePath}/08.wav`;
+		return `${basePath}/02.wav`;
 	}
 }
 
@@ -178,7 +179,7 @@ function startSequencer() {
 			if (!isPlaying || instrument4Groups.length === 0) return;
 
 			const group = instrument4Groups[currentStep];
-			const soundFile = getInstrument4Sound(group.bit, group.length);
+			const soundFile = getMelodicSound(group.bit, group.length, currentInstrument);
 			const buffer = audioSamples[currentInstrument][soundFile];
 
 			if (buffer) {
@@ -204,9 +205,9 @@ function startSequencer() {
 
 			if (isFirstInSequence) {
 				if (bit === 0) {
-					playSample(audioSamples[2]['kick']);
+					playSample(audioSamples[2]['audio/02/kick.wav']);
 				} else {
-					playSample(audioSamples[2]['rim']);
+					playSample(audioSamples[2]['audio/02/rim.wav']);
 				}
 			}
 
@@ -223,9 +224,9 @@ function startSequencer() {
 			const bit = currentSequence[currentStep];
 
 			if (bit === 0) {
-				playSample(audioSamples[1]['hat']);
+				playSample(audioSamples[1]['audio/01/hat.wav']);
 			} else {
-				playSample(audioSamples[1]['kick']);
+				playSample(audioSamples[1]['audio/01/kick.wav']);
 			}
 
 			currentStep = (currentStep + 1) % currentSequence.length;
@@ -271,72 +272,56 @@ function updateSequence(number) {
 	}
 }
 
-function getAudioUrl(path) {
-	return new URL(path, import.meta.url).href;
-}
-
 async function preloadAudioFiles() {
-	audioArrayBuffers[1]['kick'] = await fetchAudioFile(getAudioUrl('./assets/audio/01/kick.wav'));
-	audioArrayBuffers[1]['hat'] = await fetchAudioFile(getAudioUrl('./assets/audio/01/hat.wav'));
+	const audioFiles = [
+		['kick.wav', 'hat.wav'],
+		['kick.wav', 'rim.wav'],
+		['01.wav', '02.wav', '03.wav', '04.wav', '05.wav', '06.wav', '07.wav', '08.wav'],
+		['01.wav', '02.wav', '03.wav', '04.wav', '05.wav', '06.wav', '07.wav', '08.wav'],
+	].map((arr, instrumentIdx) => arr.map(path => `audio/${String(instrumentIdx + 1).padStart(2, '0')}/${path}`));
 
-	audioArrayBuffers[2]['kick'] = await fetchAudioFile(getAudioUrl('./assets/audio/02/kick.wav'));
-	audioArrayBuffers[2]['rim'] = await fetchAudioFile(getAudioUrl('./assets/audio/02/rim.wav'));
+	const loadPromises = audioFiles.flatMap((instrumentPaths, instrumentIndex) => {
+		const instrument = instrumentIndex + 1;
+		return instrumentPaths.map(path =>
+			fetchAudioFile(path).then(arrayBuffer => {
+				audioArrayBuffers[instrument][path] = arrayBuffer;
+			})
+		);
+	});
 
-	audioArrayBuffers[3]['1.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/03/01.wav'));
-	audioArrayBuffers[3]['2.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/03/02.wav'));
-	audioArrayBuffers[3]['3.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/03/03.wav'));
-	audioArrayBuffers[3]['4.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/03/04.wav'));
-	audioArrayBuffers[3]['5.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/03/05.wav'));
-	audioArrayBuffers[3]['6.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/03/06.wav'));
-	audioArrayBuffers[3]['7.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/03/07.wav'));
-	audioArrayBuffers[3]['8.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/03/08.wav'));
-
-	audioArrayBuffers[4]['1.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/04/01.wav'));
-	audioArrayBuffers[4]['2.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/04/02.wav'));
-	audioArrayBuffers[4]['3.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/04/03.wav'));
-	audioArrayBuffers[4]['4.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/04/04.wav'));
-	audioArrayBuffers[4]['5.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/04/05.wav'));
-	audioArrayBuffers[4]['6.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/04/06.wav'));
-	audioArrayBuffers[4]['7.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/04/07.wav'));
-	audioArrayBuffers[4]['8.wav'] = await fetchAudioFile(getAudioUrl('./assets/audio/04/08.wav'));
+	await Promise.all(loadPromises);
 }
 
 async function decodeAllSamples() {
-	audioSamples[1]['kick'] = await decodeAudioData(audioArrayBuffers[1]['kick']);
-	audioSamples[1]['hat'] = await decodeAudioData(audioArrayBuffers[1]['hat']);
+	// Decode all samples in parallel using full paths as keys
+	const decodePromises = Object.keys(audioArrayBuffers).flatMap(instrument => {
+		const instrumentNum = parseInt(instrument, 10);
+		return Object.keys(audioArrayBuffers[instrumentNum]).map(path =>
+			decodeAudioData(audioArrayBuffers[instrumentNum][path]).then(buffer => {
+				audioSamples[instrumentNum][path] = buffer;
+			})
+		);
+	});
 
-	audioSamples[2]['kick'] = await decodeAudioData(audioArrayBuffers[2]['kick']);
-	audioSamples[2]['rim'] = await decodeAudioData(audioArrayBuffers[2]['rim']);
-
-	audioSamples[3]['1.wav'] = await decodeAudioData(audioArrayBuffers[3]['1.wav']);
-	audioSamples[3]['2.wav'] = await decodeAudioData(audioArrayBuffers[3]['2.wav']);
-	audioSamples[3]['3.wav'] = await decodeAudioData(audioArrayBuffers[3]['3.wav']);
-	audioSamples[3]['4.wav'] = await decodeAudioData(audioArrayBuffers[3]['4.wav']);
-	audioSamples[3]['5.wav'] = await decodeAudioData(audioArrayBuffers[3]['5.wav']);
-	audioSamples[3]['6.wav'] = await decodeAudioData(audioArrayBuffers[3]['6.wav']);
-	audioSamples[3]['7.wav'] = await decodeAudioData(audioArrayBuffers[3]['7.wav']);
-	audioSamples[3]['8.wav'] = await decodeAudioData(audioArrayBuffers[3]['8.wav']);
-
-	audioSamples[4]['1.wav'] = await decodeAudioData(audioArrayBuffers[4]['1.wav']);
-	audioSamples[4]['2.wav'] = await decodeAudioData(audioArrayBuffers[4]['2.wav']);
-	audioSamples[4]['3.wav'] = await decodeAudioData(audioArrayBuffers[4]['3.wav']);
-	audioSamples[4]['4.wav'] = await decodeAudioData(audioArrayBuffers[4]['4.wav']);
-	audioSamples[4]['5.wav'] = await decodeAudioData(audioArrayBuffers[4]['5.wav']);
-	audioSamples[4]['6.wav'] = await decodeAudioData(audioArrayBuffers[4]['6.wav']);
-	audioSamples[4]['7.wav'] = await decodeAudioData(audioArrayBuffers[4]['7.wav']);
-	audioSamples[4]['8.wav'] = await decodeAudioData(audioArrayBuffers[4]['8.wav']);
+	await Promise.all(decodePromises);
 }
 
-preloadAudioFiles();
-
-startBtn.addEventListener('click', async () => {
-	if (!audioContext) {
+(async () => {
+	loadingDialog.classList.remove('hidden');
+	try {
+		await preloadAudioFiles();
 		audioContext = new (window.AudioContext || window.webkitAudioContext)();
 		await decodeAllSamples();
 
 		const initialNumber = parseInt(numberSlider.value);
 		updateSequence(initialNumber);
+	} finally {
+		loadingDialog.classList.add('hidden');
 	}
+})();
+
+startBtn.addEventListener('click', () => {
+	if (!audioContext) return;
 
 	if (!isPlaying) {
 		isPlaying = true;
